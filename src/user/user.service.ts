@@ -24,7 +24,7 @@ export class UserService {
     return this.userRepository.save(userEntity);
   }
 
-  async list() {
+  async findAll() {
     const savedUsers = await this.userRepository.find();
     const usersList = savedUsers.map(
       (user) => new ListUserDto(user.id, user.name),
