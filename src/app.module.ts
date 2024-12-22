@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { PostgresConfigService } from './database/postgres.config.service';
+import { HashPasswordHelper } from './helpers/hash-password-helper/hash-password-helper';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { PostgresConfigService } from './database/postgres.config.service';
     UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [HashPasswordHelper],
 })
 export class AppModule {}

@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { ListUserDto } from './dto/list-user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ConflictException } from '@nestjs/common';
 
 @ApiTags('User')
 @Controller('user')
@@ -21,9 +22,26 @@ export class UserController {
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   async create(@Body() userData: CreateUserDto) {
-    const createdUser = await this.userService.create(userData);
-    const newUser = new ListUserDto(createdUser.id, createdUser.name);
-    return newUser;
+    const userWithSameEmail = await this.userService.findByEmail(
+      userData.email,
+    );
+    if (!userWithSameEmail) {
+      const createdUser = await this.userService.create(userData);
+      const newUser = new ListUserDto(
+        createdUser.id,
+        createdUser.name,
+        createdUser.email,
+      );
+      return newUser;
+    } else {
+      throw new ConflictException('This email is already in use');
+    }
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get user by id' })
+  async getById(@Param('id') id: string) {
+    return await this.userService.findById(id);
   }
 
   @Get()
@@ -35,7 +53,13 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+    const userExists = await this.userService.findById(updateUserDto.email);
+    if (userExists) {
+      await this.userService.update(id, updateUserDto);
+      return { message: 'User updated successfully' };
+    } else {
+      throw new ConflictException('User not found');
+    }
   }
 
   @Delete(':id')
