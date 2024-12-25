@@ -6,6 +6,7 @@ import {
   Patch,
   Delete,
   Param,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +21,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({
+    summary: 'Create a new user',
+    responses: {
+      201: { description: 'User created successfully' },
+      409: { description: 'This email is already in use' },
+    },
+  })
   async create(@Body() userData: CreateUserDto) {
     const userWithSameEmail = await this.userService.findByEmail(
       userData.email,
@@ -38,33 +45,79 @@ export class UserController {
     }
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get user by id' })
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get user by id',
+    responses: {
+      200: { description: 'User found successfully' },
+      404: { description: 'User not found' },
+    },
+  })
   async getById(@Param('id') id: string) {
-    return await this.userService.findById(id);
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return new ListUserDto(user.id, user.name, user.email, user.deleted);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all users' })
+  @ApiOperation({
+    summary: 'List all users',
+    responses: {
+      200: { description: 'List of users found successfully' },
+    },
+  })
   async listAll() {
-    return await this.userService.findAll();
+    const users = await this.userService.findAll();
+    const usersList = users.map(
+      (user) => new ListUserDto(user.id, user.name, user.email),
+    );
+    return usersList;
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a user' })
+  @ApiOperation({
+    summary: 'Update a user',
+    responses: {
+      200: { description: 'User updated successfully' },
+      404: { description: 'User not found' },
+      409: { description: 'This email is already in use' },
+    },
+  })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const userExists = await this.userService.findById(updateUserDto.email);
-    if (userExists) {
-      await this.userService.update(id, updateUserDto);
-      return { message: 'User updated successfully' };
-    } else {
+    const user = await this.userService.findById(id);
+    if (!user) {
       throw new ConflictException('User not found');
     }
+
+    if (updateUserDto.email) {
+      const userWithSameEmail = await this.userService.findByEmail(
+        updateUserDto.email,
+      );
+      if (userWithSameEmail) {
+        throw new ConflictException('This email is already in use');
+      }
+    }
+
+    await this.userService.update(id, updateUserDto);
+    return { message: 'User updated successfully' };
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user' })
-  delete(@Param('id') id: string) {
-    return this.userService.deleteUser(id);
+  @ApiOperation({
+    summary: 'Delete a user',
+    responses: {
+      200: { description: 'User deleted successfully' },
+      404: { description: 'User not found' },
+    },
+  })
+  async delete(@Param('id') id: string) {
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userService.deleteUser(id);
+    return { message: 'User deleted successfully' };
   }
 }
