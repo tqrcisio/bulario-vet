@@ -26,7 +26,9 @@ export class UserService {
   }
 
   async findAll() {
-    const savedUsers = await this.userRepository.find();
+    const savedUsers = await this.userRepository.find({
+      where: { deleted: false },
+    });
     const usersList = savedUsers.map(
       (user) => new ListUserDto(user.id, user.name, user.email),
     );
@@ -35,7 +37,7 @@ export class UserService {
 
   async findByEmail(email: string) {
     return await this.userRepository.findOne({
-      where: { email },
+      where: { email, deleted: false },
     });
   }
 
@@ -48,6 +50,6 @@ export class UserService {
   }
 
   async deleteUser(id: string) {
-    await this.userRepository.delete(id);
+    await this.userRepository.update(id, { deleted: true });
   }
 }
