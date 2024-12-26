@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
-import { UserEntity } from '../infra/database/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ListUserDto } from './dto/list-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { HashPasswordHelper } from '../helpers/hash-password-helper/hash-password-helper';
+import { UserEntity } from '../../infra/database/entities/user.entity';
+import { HashPasswordHelper } from '../../helpers/hash-password-helper/hash-password-helper';
 
 @Injectable()
 export class UserService {

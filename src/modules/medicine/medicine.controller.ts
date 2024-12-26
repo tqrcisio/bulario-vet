@@ -14,7 +14,7 @@ import { MedicineService } from './medicine.service';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { GetMedicineDto } from './dto/get-medicine.dto';
 import { UpdateMedicineDto } from './dto/update-medicine.dto';
-import { GetTechnicalResponsibleDto } from 'src/technical-responsible/dto/get-techinical-responsible.dto';
+import { GetTechnicalResponsibleDto } from '../../modules/technical-responsible/dto/get-techinical-responsible.dto';
 
 @ApiTags('Medicine')
 @Controller('medicine')

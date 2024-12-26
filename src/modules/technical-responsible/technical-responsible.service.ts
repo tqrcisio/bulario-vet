@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TechnicalResponsibleEntity } from '../infra/database/entities/technical-responsible.entity';
+import { TechnicalResponsibleEntity } from '../../infra/database/entities/technical-responsible.entity';
 import { Repository } from 'typeorm';
 import { UpdateTechnicalResponsibleDto } from './dto/update-technical-responsible.dto';
 import { CreateTechnicalResponsibleDto } from './dto/create-technical-responsible.dto';
