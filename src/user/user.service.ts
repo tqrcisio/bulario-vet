@@ -6,7 +6,7 @@ import { UserEntity } from '../infra/database/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ListUserDto } from './dto/list-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { HashPasswordHelper } from 'src/helpers/hash-password-helper/hash-password-helper';
+import { HashPasswordHelper } from '../helpers/hash-password-helper/hash-password-helper';
 
 @Injectable()
 export class UserService {
